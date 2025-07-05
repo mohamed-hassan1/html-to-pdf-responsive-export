@@ -19,13 +19,7 @@ The export is handled using [`jsPDF`](https://github.com/parallax/jsPDF) and [`h
 - 🔘 Floating "Download PDF" button for easy access
 
 
-## 📁 Project Structure
-
-/html-to-pdf-responsive-export
-├── index.html       # The main HTML page with inline styles
-├── js/
-│   └── main.js      # JavaScript logic for rendering and PDF export
-├── img/             # Images
+<pre> ## 📁 Project Structure ```bash /html-to-pdf-responsive-export ├── index.html # The main HTML page with inline styles ├── js/ │ └── main.js # JavaScript logic for rendering and PDF export ├── img/ # Images ``` </pre>
 
 
 ## 🚀 How It Works
