@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Aide AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            background: #f5f5f5;
+        }
+        #myContainer {
+            position: relative;
+        }
+        html.active body,
+        html.active {
+            overflow: hidden!important;
+        }
+        html.active #myContainer {
+            overflow: hidden;
+        }
+        #myContainer .spinner-container {
+            display: none;
+            position: fixed;
+            justify-content: center;
+            align-items: center;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,.7);
+            z-index: 9999999;
+        }
+        html.active #myContainer .spinner-container {
+            display: flex;
+        }
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 5px solid #fff;
+            border-top: 5px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 0.5s linear infinite;
+        }
+        .page {
+            width: 8.5in;
+            height: 11in;
+            margin: 0 auto 1rem;
+            padding: 0.6in;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            page-break-after: always;
+            display: block;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .page:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Cover Page */
+        .cover-page {
+            background: #7846ff;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cover-graphics {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            opacity: 0.2;
+        }
+        
+        .route-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .route-line {
+            position: absolute;
+            height: 2px;
+            background: white;
+            border-radius: 1px;
+        }
+        
+        .route1 { width: 120px; top: 20px; left: 10%; transform: rotate(15deg); }
+        .route2 { width: 150px; top: 40px; left: 30%; transform: rotate(-10deg); }
+        .route3 { width: 100px; top: 60px; left: 60%; transform: rotate(25deg); }
+        .route4 { width: 130px; top: 90px; left: 20%; transform: rotate(-5deg); }
+        .route5 { width: 110px; top: 110px; left: 70%; transform: rotate(20deg); }
+        
+        .calendar-icons {
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            opacity: 0.3;
+        }
+        
+        .calendar-icon {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #6366f1;
+            font-weight: bold;
+        }
+        
+        .cover-content {
+            z-index: 10;
+            position: relative;
+        }
+        
+        .cover-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            line-height: 1.1;
+        }
+        
+        .cover-subtitle {
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .cover-tagline {
+            font-size: 1rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 6rem;
+            max-width: 600px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        /* Content Pages */
+        .page-title {
+            font-size: 1.8rem;
+            color: #6366f1;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #6366f1;
+            margin: 1.2rem 0 0.8rem;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.3rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+        }
+        
+        .feature-card h3 {
+            color: #6366f1;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+        
+        .feature-list li {
+            margin: 0.3rem 0;
+            padding-left: 1rem;
+            position: relative;
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .screenshot-placeholder {
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+            color: #6b7280;
+            font-style: italic;
+            font-size: 0.8rem;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+        
+        .benefit-item {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 0.8rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .benefit-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0ea5e9;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        
+        .benefit-label {
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+        
+        .contact-section {
+            background: #6366f1;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .contact-item {
+            text-align: left;
+        }
+        
+        .contact-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 0.1rem;
+        }
+        
+        .contact-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        .download-section {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .download-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        
+        /* Ensure content fits properly */
+        p {
+            margin: 0.6rem 0;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+        
+        ul {
+            margin: 0.5rem 0;
+        }
+        
+        /* Two-column layout for some sections */
+        .two-column {
+            columns: 2;
+            column-gap: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .two-column p {
+            margin: 0.4rem 0;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media only screen and (max-width: 500px) {
+            .download-section {
+                right: 10px;
+            }
+        }
+        
+        @media print {
+            .spinner-container,
+            .download-section {
+                display: none !important;
+            }
+            
+            .page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0.5in;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="myContainer">
+    <div class="download-section">
+        <button class="download-btn" onclick="downloadPDF()">📄 Download PDF</button>
+    </div>
+    <div class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Cover Page -->
+    <div class="page cover-page">
+        <div class="cover-graphics">
+            <div class="route-lines">
+                <div class="route-line route1"></div>
+                <div class="route-line route2"></div>
+                <div class="route-line route3"></div>
+                <div class="route-line route4"></div>
+                <div class="route-line route5"></div>
+            </div>
+            <div class="calendar-icons">
+                <div class="calendar-icon">
+                    <div style="font-size: 0.5rem; margin-bottom: 2px;">MON</div>
+                    <div>15</div>
+                </div>
+                <div class="calendar-icon">
+                    <div style="font-size: 0.5rem; margin-bottom: 2px;">TUE</div>
+                    <div>16</div>
+                </div>
+                <div class="calendar-icon">
+                    <div style="font-size: 0.5rem; margin-bottom: 2px;">WED</div>
+                    <div>17</div>
+                </div>
+                <div class="calendar-icon">
+                    <div style="font-size: 0.5rem; margin-bottom: 2px;">THU</div>
+                    <div>18</div>
+                </div>
+                <div class="calendar-icon">
+                    <div style="font-size: 0.5rem; margin-bottom: 2px;">FRI</div>
+                    <div>19</div>
+                </div>
+            </div>
+        </div>
+        <div class="cover-content">
+            <img src="img/ConnectAideFull.png" alt="Connect Aide AI" style="max-width: 500px; height: auto; margin-bottom: 0.8rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <h1 class="cover-title" style="display: none;">Connect Aide AI</h1>
+            <h2 class="cover-subtitle">Homecare Coordination Streamlined</h2>
+            <p class="cover-tagline">Revolutionizing home care operations with intelligent automation and seamless coordination</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">95%</span>
+                    <span class="stat-label">Reduction in Scheduling Time</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">25%</span>
+                    <span class="stat-label">Increase in Patient Retention</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">40%</span>
+                    <span class="stat-label">Reduction in Caregiver Turnover</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">50%</span>
+                    <span class="stat-label">Reduction in Missed Visits</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2: Smart Matching & Scheduling -->
+    <div class="page">
+        <h1 class="page-title">Smart Matching & Scheduling</h1>
+        
+        <div class="section-title">Intelligent Caregiver-Patient Matching</div>
+        <p>Our advanced algorithms analyze multiple factors to ensure perfect matches between caregivers and patients, optimizing for preferences, availability, location, and skill requirements.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🎯 Advanced Matching Engine</h3>
+                <ul class="feature-list">
+                    <li>Location-based optimization</li>
+                    <li>Skill and preference matching</li>
+                    <li>Language compatibility</li>
+                    <li>Schedule availability analysis</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>📅 Automated Scheduling</h3>
+                <ul class="feature-list">
+                    <li>Recurring weekly schedules</li>
+                    <li>Real-time availability tracking</li>
+                    <li>Conflict prevention</li>
+                    <li>Instant adjustments</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- <div class="screenshot-placeholder"> -->
+		<!-- <img src="img/ConnectAideFull.png" alt="Connect Aide AI" style="max-width: 500px; height: auto; margin-bottom: 0.8rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"> -->
+            <!-- <strong>INSERT SCREENSHOT HERE:</strong> Map browse interface with caregiver locations (Image 2) -->
+        <!-- </div> -->
+		<img src="img/map.png" alt="Connect Aide AI" style="max-width: 550px; height: auto; margin-bottom: 0rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        
+        <div class="section-title">Multiple Intent-Based Views</div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🔍 Open Cases View</h3>
+                <p>Identify patients with open visits and find available caregivers within date range.</p>
+            </div>
+            <div class="feature-card">
+                <h3>👥 Unscheduled Caregivers</h3>
+                <p>View available caregivers with staffing status and availability filters.</p>
+            </div>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>📋 New Referral Matching</h3>
+                <p>Evaluate pending patients and caregiver availability before accepting cases.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🌍 Area Analysis</h3>
+                <p>Heat map visualization of areas lacking caregivers based, smart scanning.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: HHAX Integration -->
+    <div class="page">
+        <h1 class="page-title">Seamless HHAX Integration</h1>
+        
+        <div class="section-title">Bi-Directional Data Synchronization</div>
+        <p>Connect Aide integrates directly with HHA Exchange, ensuring your existing workflows remain intact while adding powerful automation capabilities.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🔄 Real-Time Sync</h3>
+                <ul class="feature-list">
+                    <li>Automatic patient data import</li>
+                    <li>Caregiver information updates</li>
+                    <li>Visit changes reflected instantly</li>
+                    <li>Assignment updates to HHAX</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>🛡️ Data Integrity</h3>
+                <ul class="feature-list">
+                    <li>Perfect system alignment</li>
+                    <li>No duplicate data entry</li>
+                    <li>Automated error detection</li>
+                    <li>Consistent record keeping</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section-title">Automated Data Collection</div>
+        <div class="feature-card" style="margin: 1rem 0;">
+            <h3>🤖 Robo Data Collection Systems</h3>
+            <ul class="feature-list">
+                <li>Automatic contact information updates</li>
+                <li>Patient preference tracking</li>
+                <li>Caregiver availability schedules</li>
+                <li>Periodic data freshness monitoring</li>
+                <li>Automated alerts for outdated information</li>
+            </ul>
+        </div>
+        
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <span class="benefit-number">100%</span>
+                <div class="benefit-label">Data Accuracy</div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-number">0</span>
+                <div class="benefit-label">Manual Data Entry</div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-number">Real-Time</span>
+                <div class="benefit-label">Updates</div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-number">Seamless</span>
+                <div class="benefit-label">Integration</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Communication & Coordination -->
+    <div class="page">
+        <h1 class="page-title">Communication & Coordination</h1>
+        
+        <div class="section-title">Built-in Chat & Messaging System</div>
+        <p>Streamline communication with caregivers through our integrated messaging platform, eliminating the need to switch between multiple systems.</p>
+        
+        <!-- <div class="screenshot-placeholder" style="height: 120px;"> -->
+            <!-- <strong>INSERT SCREENSHOT HERE:</strong> Chat interface showing conversations (Image 1) -->	
+        <!-- </div> -->
+		<img src="img/chat.png" alt="Connect Aide AI" style="max-width: 700px; height: auto; margin-bottom: 0rem;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>💬 Organized Communication</h3>
+                <ul class="feature-list">
+                    <li>Centralized messaging hub</li>
+                    <li>Case-specific chat threads</li>
+                    <li>Automated message routing</li>
+                    <li>Message history tracking</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>📱 SMS Integration</h3>
+                <ul class="feature-list">
+                    <li>Automated visit invitations</li>
+                    <li>Real-time response monitoring</li>
+                    <li>Dashboard response tracking</li>
+                    <li>Bulk messaging capabilities</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section-title" style="display: none">Smart Invitation Management</div>
+        <div class="feature-grid" style="display: none">
+            <div class="feature-card">
+                <h3>🎯 Intelligent Case Invitations</h3>
+                <ul class="feature-list">
+                    <li>Automated caregiver invitation sending</li>
+                    <li>Response time tracking and analytics</li>
+                    <li>Acceptance rate monitoring</li>
+                    <li>Follow-up automation for non-responders</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Real-Time Monitoring</h3>
+                <ul class="feature-list">
+                    <li>Active case tracking</li>
+                    <li>Response rate analytics</li>
+                    <li>Communication status updates</li>
+                    <li>Team performance metrics</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="feature-grid" style="display: none">
+            <div class="feature-card">
+                <h3>⚡ Quick Actions</h3>
+                <ul class="feature-list">
+                    <li>One-click case assignments</li>
+                    <li>Bulk invitation sending</li>
+                    <li>Emergency contact protocols</li>
+                    <li>Instant message templates</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>📋 Coordination Dashboard</h3>
+                <ul class="feature-list">
+                    <li>Real-time dashboard updates</li>
+                    <li>Team collaboration insights</li>
+                    <li>Priority case identification</li>
+                    <li>Streamlined workflow triggers</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 5: EVV Monitoring & Dashboard -->
+    <div class="page">
+        <h1 class="page-title">EVV Monitoring & Dashboard</h1>
+        
+        <div class="section-title">Proactive EVV Management</div>
+        <p>Stay ahead of compliance issues with our intelligent EVV monitoring system that encourages on-time clocking and reduces manual corrections.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>⏰ Real-Time Monitoring</h3>
+                <ul class="feature-list">
+                    <li>Live clocking status tracking</li>
+                    <li>Automatic late clock-in alerts</li>
+                    <li>Missing clock-out notifications</li>
+                    <li>Geolocation verification</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>🔔 Proactive Alerts</h3>
+                <ul class="feature-list">
+                    <li>Coordinator instant notifications</li>
+                    <li>Early intervention triggers</li>
+                    <li>Compliance risk warnings</li>
+                    <li>Automated reminder systems</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section-title">Comprehensive Analytics Dashboard</div>
+        <p>Get complete visibility into your operations with our intuitive dashboard that showcases case activity, team performance, and key metrics.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>📈 Performance Metrics</h3>
+                <ul class="feature-list">
+                    <li>Case completion rates</li>
+                    <li>Caregiver utilization statistics</li>
+                    <li>Patient satisfaction scores</li>
+                    <li>Coordinator productivity metrics</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>📧 Daily Email Summaries</h3>
+                <ul class="feature-list">
+                    <li>Personalized coordinator summaries</li>
+                    <li>Next-day preparation briefings</li>
+                    <li>Quick action suggestions</li>
+                    <li>Direct action links</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <span class="benefit-number">50%</span>
+                <div class="benefit-label">Fewer Missed Visits</div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-number">80%</span>
+                <div class="benefit-label">Reduction in Manual Corrections</div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-number">99%</span>
+                <div class="benefit-label">Compliance Rate</div>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-number">Real-Time</span>
+                <div class="benefit-label">Issue Resolution</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 6: Contact -->
+    <div class="page">
+        <h1 class="page-title">Transform Your Operations</h1>
+        
+        <div class="section-title">Why Choose Connect Aide AI?</div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🚀 Proven Results</h3>
+                <ul class="feature-list">
+                    <li>95% reduction in scheduling time</li>
+                    <li>25% increase in patient retention</li>
+                    <li>40% reduction in caregiver turnover</li>
+                    <li>50% reduction in missed visits</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>⚡ Complete Integration</h3>
+                <ul class="feature-list">
+                    <li>Seamless HHAX connectivity</li>
+                    <li>No workflow disruption</li>
+                    <li>Automated data synchronization</li>
+                    <li>Real-time system alignment</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="section-title">Core Features Summary</div>
+        <div class="two-column">
+            <p><strong>Smart Matching & Scheduling:</strong> Advanced algorithms match caregivers to patients based on location, skills, preferences, and availability with automated recurring schedule creation.</p>
+            
+            <p><strong>HHAX Integration:</strong> Bi-directional real-time synchronization with HHA Exchange ensures data integrity and eliminates duplicate entry.</p>
+            
+            <p><strong>Communication Hub:</strong> Built-in chat and SMS system for organized caregiver communication with automated invitation management.</p>
+            
+            <p><strong>EVV Monitoring:</strong> Proactive compliance management with real-time alerts and early intervention capabilities.</p>
+            
+            <p><strong>Analytics Dashboard:</strong> Comprehensive performance metrics with automated daily briefings and actionable insights.</p>
+            
+            <p><strong>Data Collection:</strong> Automated systems to collect and update patient and caregiver information with periodic monitoring.</p>
+        </div>
+        
+        <div class="contact-section">
+            <h2 style="margin-bottom: 1rem; font-size: 1.4rem;">Get Started Today</h2>
+            <p style="margin-bottom: 1rem; font-size: 0.95rem;">Contact our sales team to learn how Connect Aide AI can transform your home care operations.</p>
+            
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-label">Sales Representative</div>
+                    <div class="contact-value">John Doe</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Phone</div>
+                    <div class="contact-value">123 456 7899 555</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Email</div>
+                    <div class="contact-value">johndoe@email.com</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-label">Website</div>
+                    <div class="contact-value">www.mhdeveloper.com</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                <p style="font-size: 1rem; font-weight: 600;">MHDeveloper Project</p>
+                <p style="font-size: 0.85rem; opacity: 0.9;">Freelancer project for an awesome client</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
